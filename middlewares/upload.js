@@ -3,6 +3,7 @@ import path from "node:path";
 import HttpError from "../helpers/HttpError.js";
 
 const destination = path.resolve("temp");
+const uploadKey = "avatarURL";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -31,7 +32,7 @@ const upload = multer({
   storage,
   limits,
   fileFilter,
-}).single("avatarURL");
+}).single(uploadKey);
 
 const uploadMiddleware = async (req, res, next) => {
   upload(req, res, function (error) {
