@@ -19,9 +19,15 @@ authRouter.post(
   signupMiddleware,
   authControllers.signup
 );
+
+authRouter.get("/verify/:verificationToken", authControllers.verify);
+
 authRouter.post("/login", signupMiddleware, authControllers.signin);
+
 authRouter.post("/logout", authenticate, authControllers.logout);
+
 authRouter.get("/current", authenticate, authControllers.getCurrent);
+
 authRouter.patch(
   "/subscription",
   authenticate,

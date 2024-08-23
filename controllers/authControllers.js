@@ -19,7 +19,11 @@ const signup = async (req, res) => {
 
   const user = await authServices.findUser({ email });
   if (user) {
-    await removeAvatarTemp(req.file);
+    try {
+      await removeAvatarTemp(req.file);
+    } catch (error) {
+      console.log((error.message = "avatar wasn't accepted"));
+    }
     throw HttpError(409, "Email in use");
   }
 
@@ -37,11 +41,30 @@ const signup = async (req, res) => {
   });
 };
 
+const verify = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await authServices.findUser({ verificationToken });
+  if (!user) {
+    throw HttpError(404, "User not found or already verified");
+  }
+
+  await authServices.updateUser(
+    { verificationToken },
+    { verify: true, verificationToken: null }
+  );
+  res.json({
+    message: "Verification successful",
+  });
+};
+
 const signin = async (req, res) => {
   const { email, password } = req.body;
   const user = await authServices.findUser({ email });
   if (!user) {
     throw HttpError(401, "Email or password is wrong");
+  }
+  if (!user.verify) {
+    throw HttpError(401, "Email not verify");
   }
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {
@@ -126,6 +149,7 @@ const addAvatar = async (req, res) => {
 
 export default {
   signup: ctrlWrapper(signup),
+  verify: ctrlWrapper(verify),
   signin: ctrlWrapper(signin),
   logout: ctrlWrapper(logout),
   getCurrent: ctrlWrapper(getCurrent),
