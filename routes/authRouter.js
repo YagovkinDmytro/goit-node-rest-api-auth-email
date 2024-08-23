@@ -2,6 +2,7 @@ import { Router } from "express";
 import authControllers from "../controllers/authControllers.js";
 import validateBody from "../decorators/validateBody.js";
 import {
+  authEmailSchema,
   authSetSubscriptionSchema,
   authSignupSchema,
 } from "../schemas/authSchemas.js";
@@ -10,6 +11,7 @@ import uploadMiddleware from "../middlewares/upload.js";
 
 const signupMiddleware = validateBody(authSignupSchema);
 const setSubscriptionMidellware = validateBody(authSetSubscriptionSchema);
+const verifyEmailMiddleware = validateBody(authEmailSchema);
 
 const authRouter = Router();
 
@@ -21,6 +23,8 @@ authRouter.post(
 );
 
 authRouter.get("/verify/:verificationToken", authControllers.verify);
+
+authRouter.post("/verify", verifyEmailMiddleware, authControllers.resendVerify);
 
 authRouter.post("/login", signupMiddleware, authControllers.signin);
 
