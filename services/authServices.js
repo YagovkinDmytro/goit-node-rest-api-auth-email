@@ -20,9 +20,19 @@ export const updateUser = async (query, data) => {
   });
 };
 
+export const sendVerifyEmail = async (email, verificationToken) => {
+  const verifyEmail = {
+    to: email,
+    subject: "Verify your email",
+    html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationToken}">Click to verify your email</a>`,
+  };
+
+  return sendEmail(verifyEmail);
+};
+
 export const signup = async (data) => {
   try {
-    const { password } = data;
+    const { password, email } = data;
     const hashPassword = await bcrypt.hash(password, 10);
     const verificationToken = nanoid();
 
@@ -32,13 +42,7 @@ export const signup = async (data) => {
       verificationToken,
     });
 
-    const verifyEmail = {
-      to: data.email,
-      subject: "Verify your email",
-      html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationToken}">Click to verify your email</a>`,
-    };
-
-    await sendEmail(verifyEmail);
+    await sendVerifyEmail(email, verificationToken);
 
     return newUser;
   } catch (error) {

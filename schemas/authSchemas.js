@@ -27,3 +27,12 @@ export const authSetSubscriptionSchema = Joi.object({
         "Choose one of the following subscriptions: 'starter', 'pro', 'business'.",
     }),
 });
+
+export const authEmailSchema = Joi.object({
+  email: Joi.string()
+    .ruleset.pattern(emailRegExp)
+    .rule({
+      message: "Please enter a valid email address (e.g., example@domain.com).",
+    })
+    .required(),
+});
